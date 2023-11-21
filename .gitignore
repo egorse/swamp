@@ -1,0 +1,11 @@
+.*
+!.gitignore
+!.keepme
+testdata/tmp
+/swamp
+/swamp-ui-dev
+/cmd/swamp/swamp
+/cmd/swamp-ui-dev/swamp-ui-dev
+vendor/
+cover.out
+cover.html

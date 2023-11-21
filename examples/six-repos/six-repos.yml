@@ -1,0 +1,57 @@
+# file:six-repos.yml
+
+# Default parameters
+_defaults: &defaults
+  input:       "{{.TOP}}/input/${REPO_ID}"
+  storage:     "{{.TOP}}/storage/${REPO_ID}"
+
+_1day: &1day
+  retention:   "24h" # 1d
+
+_2weeks: &2weeks
+  retention:   "336h" # 14d
+
+# Repositories
+# The repo id must not start from _
+abc-gen1:
+  <<:          [*defaults, *1day]
+  name:        "ABC Gen1"
+  description: >
+                Lorem ipsum tincidunt mollis orci sociosqu donec fringilla
+                ullamcorper libero ut gravida, curabitur aliquam per molestie
+                nulla id feugiat mattis eget augue. Vehicula suscipit dictum
+                molestie vestibulum eros eleifend, inceptos gravida dictum eget
+                est eu suscipit, nisl commodo libero aenean eget.
+  meta:
+    "key1": "value1"
+    "key2": "value2"
+    "bugs": "http://some-site.com/"
+
+abc-gen2:
+  <<:          [*defaults, *1day]
+  name:        "ABC Gen2"
+  description: "ABC Gen2 project repo description"
+  retention:   "168h" # 7d
+  broken:      "/tmp"
+
+diplo:
+  <<:          [*defaults, *2weeks]
+  name:        "Diplodocus"
+  description: "Diplodocus project repo description. Two weeks retention time."
+
+triceratops:
+  <<:          *defaults
+  name:        "Triceratops"
+  description: "Triceratops project repo description. Only one hour retention time."
+  retention:   "1h"
+  broken:      "/dev/null"
+
+jump:
+  <<:          [*defaults, *2weeks]
+  name:        "Jump"
+  description: "Jump project repo description"
+
+receiver:
+  <<:          *defaults
+  name:        "Receiver"
+  description: "Receiver project repo description. No retention"

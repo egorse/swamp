@@ -1,0 +1,92 @@
+<!-- Hero Section -->
+<section class="hero is-info">
+    <div class="hero-body">
+        <div class="container">
+            <h1 class="title">
+                Welcome to the Swamp
+            </h1>
+            <h2 class="subtitle">
+                Only minimalistic artifacts storage
+            </h2>
+        </div>
+    </div>
+</section>
+
+{{if .Errors}}
+<!-- Errors Section -->
+<section class="section">
+    <div class="container">
+        <div class="errors">
+            {{range .Errors}}
+            <div class="notification is-danger">
+                <p class="block"><i class="fas fa-triangle-exclamation" style="font-size: 150%;"></i>&nbsp;{{.}}</p>
+            </div>
+            {{end}}
+        </div>
+    </div>
+</section>
+{{end}}
+
+<!-- Shameless self promotion section -->
+<section class="section">
+    <div class="container">
+        <div class="content">
+            <h1 class="title">Intro</h1>
+            {{template "swamp-intro-text" .}}
+        </div>
+    </div>
+</section>
+
+{{define "repo-card"}}
+<!-- Repo card -->
+<div class="content box">
+    <h2><a href="/repo/{{.RepoID}}"><i class="fas fa-book"></i>&nbsp;{{.RepoID}}</a> - {{.Name}}</h2>
+    <p>{{.Description}}</p>
+    <table>
+        <tbody>
+            <tr>
+                <td>Artifacts</td>
+                <td>{{.ArtifactsCount}}</td>
+            </tr>
+            <tr>
+                <td>Total size</td>
+                <td>{{.Size}}</td>
+            </tr>
+            <tr>
+                <td>Retention</td>
+                <td>{{.Retention}}</td>
+            </tr>
+            {{template "table-meta-rows" .}}
+        </tbody>
+    </table>
+    {{if .Artifacts}}
+    {{with index .Artifacts 0 }}
+    <table>
+        <thead>
+            <th></th>
+            <th>Last artifact</th>
+            <th>Size</th>
+            <th>Created</th>
+            <th>Expired</th>
+        </thead>
+        <tbody>
+            {{template "table-artifacts-row" .}}
+        </tbody>
+    </table>
+    {{end}}
+    {{end}}
+</div>
+{{end}}
+{{if .Repos}}
+<!-- Repos Section -->
+<section class="section">
+    <div class="container">
+        <div class="repos">
+            <h1 class="title">Repos</h1>
+            {{range .Repos}}
+            {{template "repo-card" .}}
+            {{end}}
+        </div>
+    </div>
+</section>
+{{end}}
