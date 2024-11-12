@@ -1,6 +1,8 @@
 .*
 !.gitignore
 !.keepme
+!.goreleaser.yaml
+!/.github*
 testdata/tmp
 /swamp
 /swamp-ui-dev
@@ -9,3 +11,4 @@ testdata/tmp
 vendor/
 cover.out
 cover.html
+dist/
