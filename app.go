@@ -1,7 +1,6 @@
 package swamp
 
 import (
-	"embed"
 	"log/slog"
 	"os"
 	"os/signal"
@@ -22,14 +21,11 @@ import (
 )
 
 // App execute application and returns error, when complete by ctrl-c.
-// The application reads config(s), templates and static web files
-// from layered filesystem.
-// Layered filesystem consists of next layers:
-//   - ./ of ${SWAMP_ROOT} (optional)
-//   - ./ of current working directory
-//   - embed.fs given as parameter (cmdFS)
+// The application reads config(s), templates and static web files from layered filesystem.
+// Layered filesystem created from next layers:
+//   - optional embed.FS/fs.SubFS/path/... given as parameter (see LayerFileSystem.Append for all supported types)
 //   - package own embed.fs (appFS)
-func App(log ports.Logger, cmdFS embed.FS) error {
+func App(log ports.Logger, topFS interface{}) error {
 	var realFS ports.FS = afero.NewOsFs()
 
 	// EventBus
@@ -37,7 +33,7 @@ func App(log ports.Logger, cmdFS embed.FS) error {
 	defer bus.Shutdown()
 
 	// Create layered filesystem
-	fs, err := infra.NewLayerFileSystem(config.TopRootFileSystemPath, os.Getwd, cmdFS, appFS)
+	fs, err := infra.NewLayerFileSystem(topFS, appFS)
 	if err != nil {
 		log.Error("unable to create layered filesystem!!!", slog.Any("err", err))
 		return lib.NewErrorCode(err, errors.RetLayerFilesystemError)

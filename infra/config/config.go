@@ -44,7 +44,7 @@ const refRepoID = "${REPO_ID}"
 var (
 	Listen                = ":8080"
 	ReposConfigFileName   = "swamp_repos.yml"
-	TopRootFileSystemPath = ""
+	TopRootFileSystemPath = lib.First(os.Getwd())
 	TimerExpiredStart     = 30 * time.Minute
 	TimerExpiredInterval  = 1 * time.Minute
 	TimerExpiredLimit     = 1

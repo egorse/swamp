@@ -25,43 +25,54 @@ const ErrWrongParamType = lib.Error("wrong param type")
 const ErrNotReadDirFileFS = lib.Error("is not interface to fs.ReadDirFileFS")
 
 func NewLayerFileSystem(params ...interface{}) (*LayerFileSystem, error) {
+	var err error
 	l := &LayerFileSystem{}
 	for _, p := range params {
-		switch v := p.(type) {
-		case func() (string, error):
-			path, err := v()
-			if err != nil {
-				return nil, err
-			}
-			if path == "" {
-				continue
-			}
-			lib.Assert(!strings.Contains(path, ".."))
-			l.layers = append(l.layers, &osFileSystem{path})
-
-		case string:
-			v = strings.TrimSpace(v)
-			if strings.HasPrefix(v, "${") && strings.HasSuffix(v, "}") {
-				name := v[2 : len(v)-1]
-				path := os.Getenv(name)
-				if path == "" {
-					continue
-				}
-				v = path
-			}
-			lib.Assert(!strings.Contains(v, ".."))
-			l.layers = append(l.layers, &osFileSystem{v})
-
-		case embed.FS:
-			l.layers = append(l.layers, &embedFileSystem{v})
-
-		case fs.SubFS:
-			l.layers = append(l.layers, &subFileSystem{v})
-
-		default:
-			return nil, ErrWrongParamType
+		l, err = l.Append(p)
+		if err != nil {
+			return l, err
 		}
+	}
+	return l, nil
+}
 
+func (l *LayerFileSystem) Append(p interface{}) (*LayerFileSystem, error) {
+	switch v := p.(type) {
+	case func() (string, error):
+		path, err := v()
+		if err != nil {
+			return l, err
+		}
+		if path == "" {
+			return l, nil
+		}
+		lib.Assert(!strings.Contains(path, ".."))
+		l.layers = append(l.layers, &osFileSystem{path})
+
+	case string:
+		v = strings.TrimSpace(v)
+		if strings.HasPrefix(v, "${") && strings.HasSuffix(v, "}") {
+			name := v[2 : len(v)-1]
+			path := os.Getenv(name)
+			if path == "" {
+				return l, nil
+			}
+			v = path
+		}
+		lib.Assert(!strings.Contains(v, ".."))
+		l.layers = append(l.layers, &osFileSystem{v})
+
+	case embed.FS:
+		l.layers = append(l.layers, &embedFileSystem{v})
+
+	case fs.SubFS:
+		l.layers = append(l.layers, &subFileSystem{v})
+
+	case *LayerFileSystem:
+		l.layers = append(l.layers, v.layers...)
+
+	default:
+		return l, ErrWrongParamType
 	}
 
 	return l, nil

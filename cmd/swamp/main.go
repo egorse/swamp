@@ -7,6 +7,7 @@ import (
 	"os"
 
 	"github.com/cloudcopper/swamp"
+	"github.com/cloudcopper/swamp/infra"
 	"github.com/cloudcopper/swamp/infra/config"
 	"github.com/cloudcopper/swamp/lib"
 )
@@ -18,7 +19,8 @@ const (
 
 //go:embed templates/**
 //go:embed static/**
-var fs embed.FS
+//go:embed swamp_repos.yml
+var mainFS embed.FS
 
 func main() {
 	// Use config file name from env SWAMP_REPO_CONFIG
@@ -26,11 +28,10 @@ func main() {
 	// Note the config file might be embedded!!!
 	config.ReposConfigFileName = lib.GetEnvDefault("SWAMP_REPO_CONFIG", config.ReposConfigFileName)
 
-	// The first filesystem layer location (nothing if empty)
+	// First filesystem layer location (default is current working dir)
 	config.TopRootFileSystemPath = lib.GetEnvDefault("SWAMP_ROOT", config.TopRootFileSystemPath)
-	// Second layer is current working dir
-	// Third layer is this app embed fs
-	// Last layer is the swamp own embed fs
+	// Second layer is this app embed fs - see mainFS
+	// Last layer is the swamp embed fs - see appFS
 
 	// Handle command line arguments
 	flag.StringVar(&config.Listen, "listen", config.Listen, "web server listen address")
@@ -50,9 +51,13 @@ func main() {
 	log := slog.Default()
 	log.Info("starting")
 
-	err := swamp.App(log, fs)
+	topFS, err := infra.NewLayerFileSystem(config.TopRootFileSystemPath, mainFS)
+	if err != nil {
+		log.Error("unable create topFS", slog.Any("err", err))
+	}
 
 	code := retNoErrorCode
+	err = swamp.App(log, topFS)
 	if err != nil {
 		code = retGenericErrorCode
 		if i, ok := err.(lib.ErrorCode); ok {

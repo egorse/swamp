@@ -1,10 +1,11 @@
-.PHONY:all
-all: swamp
+APPS := $(notdir $(wildcard cmd/*))
+SRC  := $(shell find . -path '*.go' -or -path '*.html')
 
-SRC = $(shell find . -path '*.go' -or -path '*.html')
-swamp: ${SRC}
-	CGO_ENABLED=0 go build -ldflags="-s -w" ./cmd/swamp
-	CGO_ENABLED=0 go build -ldflags="-s -w" ./cmd/swamp-ui-dev
+.PHONY:all
+all: ${APPS}
+
+${APPS}: ${SRC}
+	CGO_ENABLED=0 go build -ldflags="-s -w" ./cmd/$@
 
 .PHONY:test
 test:
