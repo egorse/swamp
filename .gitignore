@@ -6,6 +6,7 @@
 testdata/tmp
 /swamp
 /swamp-ui-dev
+/lake
 /cmd/swamp/swamp
 /cmd/swamp-ui-dev/swamp-ui-dev
 vendor/
